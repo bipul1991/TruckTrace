@@ -13,12 +13,14 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import kotlinx.android.synthetic.main.activity_maps.*
 import android.R.attr.data
-
+import android.content.Context
 
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private lateinit var mMap: GoogleMap
+
+var type = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,6 +34,14 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         cmpltLay.setOnClickListener(View.OnClickListener { Toast.makeText(this, "We are working on it" as String, Toast.LENGTH_LONG).show() })
         cnclLay.setOnClickListener(View.OnClickListener { Toast.makeText(this, "We are working on it" as String, Toast.LENGTH_LONG).show() })
         emgncyLay.setOnClickListener(View.OnClickListener { Toast.makeText(this, "We are working on it" as String, Toast.LENGTH_LONG).show() })
+
+        val editor = getSharedPreferences("truck", Context.MODE_PRIVATE)
+        type = editor.getString("type","type")
+
+        if (!type.equals(type,ignoreCase = true))
+        {
+            linearLay.visibility = View.GONE
+        }
     }
 
     /**

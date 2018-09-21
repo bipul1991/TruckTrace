@@ -38,27 +38,24 @@
         <activity
             android:name=".MapsActivity"
             android:label="@string/title_activity_maps" />
-        <activity android:name=".LogInActivity" >
-
+        <activity android:name=".LogInActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-
         </activity>
-
         <activity
             android:name=".LoginActivity2"
             android:label="@string/title_activity_login2" />
         <activity
             android:name=".LoginActivity3"
             android:label="@string/title_activity_login3" />
-        <activity android:name=".HomeActivity">
-
-        </activity>
+        <activity android:name=".HomeActivity"></activity>
         <activity
             android:name=".MapsActivity2555555"
-            android:label="@string/title_activity_maps2555555"></activity>
+            android:label="@string/title_activity_maps2555555" />
+        <activity android:name=".CompletedActivity"></activity>
     </application>
 
 </manifest>

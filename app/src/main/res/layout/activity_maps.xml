@@ -55,6 +55,7 @@
                     android:orientation="horizontal"
                     android:layout_alignParentBottom="true"
                     android:background="@drawable/bg_location_lay"
+                    android:id="@+id/linearLay"
 
                     >
 

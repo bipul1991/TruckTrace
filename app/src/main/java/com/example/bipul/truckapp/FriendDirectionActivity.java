@@ -1,3 +1,4 @@
+/*
 package com.example.bipul.truckapp;
 
 
@@ -102,11 +103,13 @@ public class FriendDirectionActivity extends AppCompatActivity implements OnMapR
 
     DatabaseReference databaseReference;
 
-  /*  private static final String LOG_TAG = "ExampleApp";
+  */
+/*  private static final String LOG_TAG = "ExampleApp";
     private static final String PLACES_API_BASE = "https://maps.googleapis.com/maps/api/place";
     private static final String TYPE_AUTOCOMPLETE = "/autocomplete";
     private static final String OUT_JSON = "/json";
-*/
+*//*
+
 
     String direction[] = new String[2];
     String userId;
@@ -139,11 +142,13 @@ private static final String API_KEY = "AIzaSyDrlkIJJl7VUmpkgPcNWT46ORfOekTzDB8";
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_friend_direction);
 
-       /* Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+       */
+/* Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-*/
+*//*
+
         final IntentFilter filter = new IntentFilter();
         filter.addAction(ACTION_IN_LOC);
         this.receiver = new LocationBroadCast();
@@ -165,11 +170,13 @@ private static final String API_KEY = "AIzaSyDrlkIJJl7VUmpkgPcNWT46ORfOekTzDB8";
 
      //   startAdThread();
 
-      /*  adView = (AdView)findViewById(R.id.adView);
+      */
+/*  adView = (AdView)findViewById(R.id.adView);
        // MobileAds.initialize(this, "ca-app-pub-3940256099942544/6300978111");
         MobileAds.initialize(this, "ca-app-pub-1806296421186622~2732604891");
         AdRequest adRequest = new AdRequest.Builder().build();
-        adView.loadAd(adRequest);*/
+        adView.loadAd(adRequest);*//*
+
 
 
         sViewBtn.setOnClickListener(new View.OnClickListener() {
@@ -439,7 +446,8 @@ private void dialog(String message, final String number)
                             public void onClick(DialogInterface dialog, int which) {
 
                                 Toast.makeText(FriendDirectionActivity.this, "Please Wait...", Toast.LENGTH_LONG).show();
-                              /*  databaseReference = FirebaseDatabase.getInstance().getReference(number);
+                              */
+/*  databaseReference = FirebaseDatabase.getInstance().getReference(number);
                                 databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
                                     @Override
                                     public void onDataChange(DataSnapshot dataSnapshot) {
@@ -455,7 +463,8 @@ private void dialog(String message, final String number)
                                     public void onCancelled(DatabaseError databaseError) {
 
                                     }
-                                });*/
+                                });*//*
+
 
                                 showFrdLoc(new LatLng(Double.parseDouble(globLat), Double.parseDouble(globLng)), number); //Calling method to show last location update
                             }
@@ -475,7 +484,8 @@ private void dialog(String message, final String number)
                 .show();
 
 
-      /*  Toast.makeText(FriendDirectionActivity.this, "Please Wait...", Toast.LENGTH_LONG).show();
+      */
+/*  Toast.makeText(FriendDirectionActivity.this, "Please Wait...", Toast.LENGTH_LONG).show();
         databaseReference = FirebaseDatabase.getInstance().getReference(number);
         databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -492,7 +502,8 @@ private void dialog(String message, final String number)
             public void onCancelled(DatabaseError databaseError) {
 
             }
-        });*/
+        });*//*
+
     }
     pdLoading.dismiss();
 }
@@ -668,7 +679,9 @@ boolean blockedCheck(String number)  // Blocing check
         return url;
     }
 
-    /** A method to download json data from url */
+    */
+/** A method to download json data from url *//*
+
     @SuppressLint("LongLogTag")
     private String downloadUrl(String strUrl) throws IOException {
         String data = "";
@@ -748,7 +761,9 @@ boolean blockedCheck(String number)  // Blocing check
         }
     }
 
-    /** A class to parse the Google Places in JSON format */
+    */
+/** A class to parse the Google Places in JSON format *//*
+
     private class ParserTask extends AsyncTask<String, Integer, List<List<HashMap<String,String>>> > {
 
 
@@ -820,7 +835,9 @@ catch (Exception ex)
 
     public class DirectionsJSONParser {
 
-        /** Receives a JSONObject and returns a list of lists containing latitude and longitude */
+        */
+/** Receives a JSONObject and returns a list of lists containing latitude and longitude *//*
+
         public List<List<HashMap<String,String>>> parse(JSONObject jObject){
 
             List<List<HashMap<String, String>>> routes = new ArrayList<List<HashMap<String,String>>>() ;
@@ -832,22 +849,30 @@ catch (Exception ex)
 
                 jRoutes = jObject.getJSONArray("routes");
 
-                /** Traversing all routes */
+                */
+/** Traversing all routes *//*
+
                 for(int i=0;i<jRoutes.length();i++){
                     jLegs = ( (JSONObject)jRoutes.get(i)).getJSONArray("legs");
                     List path = new ArrayList<HashMap<String, String>>();
 
-                    /** Traversing all legs */
+                    */
+/** Traversing all legs *//*
+
                     for(int j=0;j<jLegs.length();j++){
                         jSteps = ( (JSONObject)jLegs.get(j)).getJSONArray("steps");
 
-                        /** Traversing all steps */
+                        */
+/** Traversing all steps *//*
+
                         for(int k=0;k<jSteps.length();k++){
                             String polyline = "";
                             polyline = (String)((JSONObject)((JSONObject)jSteps.get(k)).get("polyline")).get("points");
                             List<LatLng> list = decodePoly(polyline);
 
-                            /** Traversing all points */
+                            */
+/** Traversing all points *//*
+
                             for(int l=0;l<list.size();l++){
                                 HashMap<String, String> hm = new HashMap<String, String>();
                                 hm.put("lat", Double.toString(((LatLng)list.get(l)).latitude) );
@@ -869,10 +894,12 @@ catch (Exception ex)
         }
 
 
-        /**
+        */
+/**
          * Method to decode polyline points
          * Courtesy : http://jeffreysambells.com/2010/05/27/decoding-polylines-from-google-maps-direction-api-with-java
-         * */
+         * *//*
+
         private List<LatLng> decodePoly(String encoded) {
 
             List<LatLng> poly = new ArrayList<LatLng>();
@@ -909,7 +936,8 @@ catch (Exception ex)
     }
 
 
-   /* void startAdThread() {
+   */
+/* void startAdThread() {
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -920,6 +948,8 @@ catch (Exception ex)
             }
         });
 
-    }*/
+    }*//*
+
 
 }
+*/

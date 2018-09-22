@@ -14,22 +14,17 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            android:text=" Create Transport"
+            android:text=" Confirm yor transport"
             android:textSize="28sp" />
     </RelativeLayout>
 
-    <EditText
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-       android:layout_margin="10dp"
-        android:hint="Enter user id"
-        android:id="@+id/userIdEdt"/>
+
 
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
-        android:hint="Enter Description"
+        android:hint="Please give your feedback"
         android:id="@+id/descEdt"
         android:inputType="textMultiLine"/>
 

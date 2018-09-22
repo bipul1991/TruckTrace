@@ -1,4 +1,3 @@
-/*
 package com.example.bipul.truckapp;
 
 
@@ -103,7 +102,6 @@ public class FriendDirectionActivity extends AppCompatActivity implements OnMapR
 
     DatabaseReference databaseReference;
 
-  */
 /*  private static final String LOG_TAG = "ExampleApp";
     private static final String PLACES_API_BASE = "https://maps.googleapis.com/maps/api/place";
     private static final String TYPE_AUTOCOMPLETE = "/autocomplete";
@@ -175,7 +173,7 @@ private static final String API_KEY = "AIzaSyDrlkIJJl7VUmpkgPcNWT46ORfOekTzDB8";
        // MobileAds.initialize(this, "ca-app-pub-3940256099942544/6300978111");
         MobileAds.initialize(this, "ca-app-pub-1806296421186622~2732604891");
         AdRequest adRequest = new AdRequest.Builder().build();
-        adView.loadAd(adRequest);*//*
+        adView.loadAd(adRequest);*/
 
 
 
@@ -446,7 +444,6 @@ private void dialog(String message, final String number)
                             public void onClick(DialogInterface dialog, int which) {
 
                                 Toast.makeText(FriendDirectionActivity.this, "Please Wait...", Toast.LENGTH_LONG).show();
-                              */
 /*  databaseReference = FirebaseDatabase.getInstance().getReference(number);
                                 databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
                                     @Override
@@ -502,7 +499,7 @@ private void dialog(String message, final String number)
             public void onCancelled(DatabaseError databaseError) {
 
             }
-        });*//*
+        });*/
 
     }
     pdLoading.dismiss();
@@ -654,7 +651,8 @@ boolean blockedCheck(String number)  // Blocing check
 
     //_________________________________________________                 map direction starts
 
-    private String getDirectionsUrl(LatLng origin, LatLng dest){
+    private String getDirectionsUrl(LatLng origin, LatLng dest)
+        {
 
         // Origin of route
         String str_origin = "origin="+origin.latitude+","+origin.longitude;
@@ -679,8 +677,7 @@ boolean blockedCheck(String number)  // Blocing check
         return url;
     }
 
-    */
-/** A method to download json data from url *//*
+/** A method to download json data from url */
 
     @SuppressLint("LongLogTag")
     private String downloadUrl(String strUrl) throws IOException {
@@ -761,8 +758,7 @@ boolean blockedCheck(String number)  // Blocing check
         }
     }
 
-    */
-/** A class to parse the Google Places in JSON format *//*
+/** A class to parse the Google Places in JSON format */
 
     private class ParserTask extends AsyncTask<String, Integer, List<List<HashMap<String,String>>> > {
 
@@ -835,7 +831,6 @@ catch (Exception ex)
 
     public class DirectionsJSONParser {
 
-        */
 /** Receives a JSONObject and returns a list of lists containing latitude and longitude *//*
 
         public List<List<HashMap<String,String>>> parse(JSONObject jObject){

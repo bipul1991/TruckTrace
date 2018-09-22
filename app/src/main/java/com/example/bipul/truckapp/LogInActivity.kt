@@ -1,6 +1,7 @@
 package com.example.bipul.truckapp
 
 import android.Manifest
+import android.app.PendingIntent.getActivity
 import android.app.ProgressDialog
 import android.content.Context
 import android.content.Intent
@@ -75,10 +76,10 @@ class LogInActivity : AppCompatActivity() {
         override fun onPreExecute() {
             super.onPreExecute()
 
-            //            pdLoading = new ProgressDialog(getActivity());
-            //            pdLoading.setMessage("\tVerifying...");
-            //            pdLoading.setCancelable(false);
-            //            pdLoading.show();
+                     pdLoading = ProgressDialog(this@LogInActivity);
+                       pdLoading?.setMessage("\tVerifying...");
+                     pdLoading?.setCancelable(false);
+                    pdLoading?.show();
 
         }
 

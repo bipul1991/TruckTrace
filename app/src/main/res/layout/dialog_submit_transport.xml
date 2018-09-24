@@ -28,14 +28,32 @@
         android:id="@+id/descEdt"
         android:inputType="textMultiLine"/>
 
-    <Button
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:text="Submit"
-        android:id="@+id/submitBtn"
-        android:layout_margin="10dp"
-        />
+        android:orientation="horizontal"
+        android:gravity="center">
+
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="Cancel"
+            android:id="@+id/canCeltBtn"
+            android:layout_margin="10dp"
+            />
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="Submit"
+            android:id="@+id/submitBtn"
+            android:layout_margin="10dp"
+            />
+    </LinearLayout>
+
+
 
 
 </LinearLayout>

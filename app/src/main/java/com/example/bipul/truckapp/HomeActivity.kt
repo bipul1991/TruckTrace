@@ -44,8 +44,8 @@ class HomeActivity : AppCompatActivity(),  GoogleApiClient.ConnectionCallbacks, 
     var client: GoogleApiClient?=null
     var locationRequest: LocationRequest?=null
 
-    var latitude: Double?=null
-    var longitude: Double?=null
+    var latitude: Double?=12.45
+    var longitude: Double?=34.2
 
     val TAG = "MainActivity"
     private lateinit var mGoogleApiClient: GoogleApiClient
@@ -74,7 +74,7 @@ class HomeActivity : AppCompatActivity(),  GoogleApiClient.ConnectionCallbacks, 
     }
 
     override fun onConnected(p0: Bundle?) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+       //To change body of created functions use File | Settings | File Templates.
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 
@@ -99,19 +99,20 @@ class HomeActivity : AppCompatActivity(),  GoogleApiClient.ConnectionCallbacks, 
     }
 
     override fun onConnectionSuspended(p0: Int) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        //To change body of created functions use File | Settings | File Templates.
 
         Log.i(TAG, "Connection Suspended");
         mGoogleApiClient.connect();
     }
 
     override fun onConnectionFailed(connectionResult: ConnectionResult) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    //To change body of created functions use File | Settings | File Templates.
         Log.i(TAG, "Connection failed. Error: " + connectionResult.getErrorCode());
+        Log.i(TAG, "Connection failed. Error2: " + connectionResult.errorMessage);
     }
 
     override fun onLocationChanged(location: Location?) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+       //To change body of created functions use File | Settings | File Templates.
 
         var msg = "Updated Location: Latitude " + location?.longitude.toString() + location?.longitude;
        // txt_latitude.setText(""+location.latitude);
@@ -134,6 +135,8 @@ class HomeActivity : AppCompatActivity(),  GoogleApiClient.ConnectionCallbacks, 
     }*/
 
     var username : String?=null
+    var userId : String?=null
+    var userType : String?=null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -149,13 +152,35 @@ class HomeActivity : AppCompatActivity(),  GoogleApiClient.ConnectionCallbacks, 
 
         mLocationManager = this.getSystemService(Context.LOCATION_SERVICE) as LocationManager
 
-        crtTsptLay.setOnClickListener(View.OnClickListener { showNewNameDialog(); })
 
-        actvTnspLay.setOnClickListener(View.OnClickListener {  val intent = Intent(this, MapsActivity::class.java)
+        crtTsptLay.setOnClickListener(View.OnClickListener { if(userType.equals("3",true)) showNewNameDialog();
+        else intent = Intent(this, Pending::class.java)
+            startActivity(intent);  })
+
+        canceledLay.setOnClickListener(View.OnClickListener {  val intent = Intent(this, Cancelde::class.java)
+            startActivity(intent); })
+
+        completeLay.setOnClickListener(View.OnClickListener {  val intent = Intent(this, CompletedActivity::class.java)
+            startActivity(intent); })
+
+
+        actvTnspLay.setOnClickListener(View.OnClickListener {  val intent = Intent(this, Active::class.java)
+            startActivity(intent); })
+
+        pendingTrnsLay.setOnClickListener(View.OnClickListener {  val intent = Intent(this, Pending::class.java)
             startActivity(intent); })
 
         val editor = getSharedPreferences("truck", Context.MODE_PRIVATE)
         username = editor.getString("username", "username")
+        userType = editor.getString("type", "username")
+        userId = editor.getString("userId", "username")
+
+        if(!userType.equals("3",true))
+        {
+            // This is transporter
+            pendingTrnsLay.visibility=View.GONE
+            crtTxt.text="Pending Transport"
+        }
 
     }
 
@@ -192,8 +217,15 @@ class HomeActivity : AppCompatActivity(),  GoogleApiClient.ConnectionCallbacks, 
         val descEdt = dialogView.findViewById<View>(R.id.descEdt) as EditText
         val submitBtn = dialogView.findViewById<View>(R.id.submitBtn) as Button
 
-        submitBtn.setOnClickListener(View.OnClickListener {CreateTransport().execute("http://triptoe.pearnode.com/api_mobile/api/create_new_transport",
-                userIdEdt.text.toString(),descEdt.text.toString())  })
+        submitBtn.setOnClickListener(View.OnClickListener {
+
+            var IdSend:String?=userIdEdt.text.toString();
+            var desc:String?=userIdEdt.text.toString();
+            CreateTransport().execute("http://triptoe.pearnode.com/api_mobile/api/create_new_transport",
+                    IdSend,desc)
+
+
+            })
 
 
         dialogBuilder.show()
@@ -232,9 +264,9 @@ class HomeActivity : AppCompatActivity(),  GoogleApiClient.ConnectionCallbacks, 
                // user_id, transporter_id, current_lat, current_long, current_address, transport_desc, created_by
 
                         .appendQueryParameter("user_id", urls[1] )
-                        .appendQueryParameter("transporter_id", username)
-                        .appendQueryParameter("current_lat", latitude as String)
-                        .appendQueryParameter("current_long", longitude as String)
+                        .appendQueryParameter("transporter_id", userId)
+                        .appendQueryParameter("current_lat",""+ latitude)
+                        .appendQueryParameter("current_long",""+ longitude)
                         .appendQueryParameter("current_address", "barackpur")
                         .appendQueryParameter("transport_desc", urls[2])
                         .appendQueryParameter("created_by", "hjhds")
@@ -293,6 +325,11 @@ class HomeActivity : AppCompatActivity(),  GoogleApiClient.ConnectionCallbacks, 
             } catch (e: JSONException) {
                 e.printStackTrace()
             }
+            catch (ex: Exception)
+            {
+                ex.printStackTrace()
+                Log.d("exExp",ex.message);
+            }
 
 
             return null
@@ -305,31 +342,7 @@ class HomeActivity : AppCompatActivity(),  GoogleApiClient.ConnectionCallbacks, 
 
                 val parentobjt = JSONObject(response)
 
-                val status = parentobjt.getString("status")
-                // String result = parentobjt.getString("result");
-                val msg = parentobjt.getString("msg")
-
-                if (status == "true") {
-
-                    Toast.makeText(this@HomeActivity, msg, Toast.LENGTH_LONG).show()
-
-                    val editor = getSharedPreferences("truck", Context.MODE_PRIVATE).edit()
-
-                 /*   editor.putString("username", username)
-                      editor.putString("device_id", device_id)*/
-
-                    editor.commit()
-
-                    val intent = Intent(this@HomeActivity, HomeActivity::class.java)
-                    startActivity(intent)
-                    finish()
-
-                } else {
-
-                    Toast.makeText(this@HomeActivity, msg, Toast.LENGTH_LONG).show()
-
-                }
-
+            Log.d("jsonStatus",""+parentobjt)
                 //Toast.makeText(Login.this,status+result+msg,Toast.LENGTH_LONG).show();
 
             } catch (e: JSONException) {

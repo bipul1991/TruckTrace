@@ -32,8 +32,7 @@
             <EditText android:id="@+id/login_user_edtxt"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="number"
-                android:hint="Mobile Number"
+                android:hint="user id"
                 android:backgroundTint="#000000"
                 android:textSize="15dp"/>
         </android.support.design.widget.TextInputLayout>

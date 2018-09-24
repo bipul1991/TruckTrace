@@ -11,6 +11,8 @@ import android.os.AsyncTask
 import android.os.Build
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.support.v4.app.ActivityCompat
+import android.support.v4.content.ContextCompat
 import android.util.Log
 import android.widget.Toast
 import com.example.bipul.truckapp.Utility.NetworkUtlities
@@ -29,7 +31,7 @@ class LogInActivity : AppCompatActivity() {
     var username=""
     var device_id = ""
     var password = ""
-    var fcm_id = ""
+    var fcm_id = "hjhkjgjf"
     var type = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -40,7 +42,16 @@ class LogInActivity : AppCompatActivity() {
             attempLogin()
         }
 
-        type="trucker"
+     //   type="trucker"
+
+        val editor = getSharedPreferences("truck", Context.MODE_PRIVATE)
+      //  username = editor.getString("username", "username")
+        if(!editor.getString("username", "username").equals("username"))
+        {
+            val intent = Intent(this@LogInActivity, HomeActivity::class.java)
+            startActivity(intent)
+            finish()
+        }
     }
 
     private fun attempLogin()
@@ -51,7 +62,11 @@ class LogInActivity : AppCompatActivity() {
         username=login_user_edtxt.text.toString()
         password=login_pass_edtxt.text.toString()
 
-        LoginApiCall().execute("http://triptoe.pearnode.com/api_mobile/api/validate")
+      //  requsetPerms();
+
+        checkPermission()
+
+
     }
 
     /*private  class UserLoginAsync : AsyncTask<String, String, String>()
@@ -75,11 +90,13 @@ class LogInActivity : AppCompatActivity() {
         internal var pdLoading: ProgressDialog? = null
         override fun onPreExecute() {
             super.onPreExecute()
+/*
 
                      pdLoading = ProgressDialog(this@LogInActivity);
                        pdLoading?.setMessage("\tVerifying...");
                      pdLoading?.setCancelable(false);
                     pdLoading?.show();
+*/
 
         }
 
@@ -102,8 +119,8 @@ class LogInActivity : AppCompatActivity() {
 
                         .appendQueryParameter("username", username)
                         .appendQueryParameter("password", password)
-                        .appendQueryParameter("device_id", device_id)
-                        .appendQueryParameter("fcm_id", fcm_id)
+                       // .appendQueryParameter("device_id", device_id)
+                        .appendQueryParameter("fcm_token", fcm_id)
 
 
                 val query = builder.build().query
@@ -150,6 +167,7 @@ class LogInActivity : AppCompatActivity() {
                 //               shippingAddressModel.setMsg(parentobjt.getString("msg"));
                 //               shippingAddressModel.setStatus(parentobjt.getBoolean("status"));
 
+                Log.d("jsonLogIn2",""+parentobjt)
                 return finaljson
 
             } catch (e: MalformedURLException) {
@@ -170,30 +188,32 @@ class LogInActivity : AppCompatActivity() {
             try {
 
                 val parentobjt = JSONObject(response)
+                Log.d("jsonLogIn",""+parentobjt)
 
-                val status = parentobjt.getString("status")
+                val status = parentobjt.getString("type")
                 // String result = parentobjt.getString("result");
-                val msg = parentobjt.getString("msg")
 
-                if (status == "true") {
 
-                    Toast.makeText(this@LogInActivity, msg, Toast.LENGTH_LONG).show()
+
+                if (status.equals("success")) {
+
 
                     val editor = getSharedPreferences("truck", Context.MODE_PRIVATE).edit()
 
-                    editor.putString("username", username)
+                    editor.putString("username", parentobjt.getString("username"))
+                    editor.putString("userId", parentobjt.getString("id"))
 
                     editor.putString("device_id", device_id)
-                    editor.putString("type", type)
+                    editor.putString("type", parentobjt.getString("usertype"))
                     editor.commit()
 
-                    val intent = Intent(this@LogInActivity, LogInActivity::class.java)
+                    val intent = Intent(this@LogInActivity, HomeActivity::class.java)
                     startActivity(intent)
                     finish()
 
                 } else {
 
-                    Toast.makeText(this@LogInActivity, msg, Toast.LENGTH_LONG).show()
+                    Toast.makeText(this@LogInActivity, "error", Toast.LENGTH_LONG).show()
 
                 }
 
@@ -211,7 +231,10 @@ class LogInActivity : AppCompatActivity() {
 
     fun requsetPerms() {
 
-        val permissions = arrayOf(Manifest.permission.READ_SMS, Manifest.permission.RECEIVE_SMS, Manifest.permission.READ_PHONE_STATE, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.ACCESS_NETWORK_STATE)
+        val permissions = arrayOf( Manifest.permission.RECEIVE_SMS, Manifest.permission.READ_PHONE_STATE,
+                Manifest.permission.ACCESS_NETWORK_STATE,Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION)
+
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
 
@@ -226,19 +249,21 @@ class LogInActivity : AppCompatActivity() {
 
         var allowed = true
 
-        when (requestCode) {
-
-            PERMS_CODE ->
 
                 for (res in grantResults) {
 
-                    allowed = allowed && res == PackageManager.PERMISSION_GRANTED
+                   // allowed = allowed && res == PackageManager.PERMISSION_GRANTED
+
+                    if(res == PackageManager.PERMISSION_GRANTED)
+
+                        allowed=true;
+
+                    else
+                        allowed=false
+                    break
                 }
 
-            else ->
 
-                allowed = false
-        }
 
 
         if (allowed) {
@@ -249,6 +274,7 @@ class LogInActivity : AppCompatActivity() {
             if (NetworkUtlities.isConnected(applicationContext)) {
 
      //           LoginApiCall().execute(BaseUrl.baseUrl + "login")
+                LoginApiCall().execute("http://triptoe.pearnode.com/api_mobile/api/validate")
 
             } else {
                 Toast.makeText(applicationContext, "Please Check Your Internet Connection.", Toast.LENGTH_LONG).show()
@@ -271,6 +297,35 @@ class LogInActivity : AppCompatActivity() {
                 }
             }
 
+        }
+    }
+
+    fun checkPermission()
+    {
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            // Should we show an explanation?
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.ACCESS_FINE_LOCATION)) {
+                // Show an explanation to the user *asynchronously* -- don't block
+                // this thread waiting for the user's response! After the user
+                // sees the explanation, try again to request the permission.
+            }
+
+            else {
+                // No explanation needed, we can request the permission.
+                ActivityCompat.requestPermissions(this,
+                        arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                        123)
+                // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
+                // app-defined int constant. The callback method gets the
+                // result of the request.
+
+            }
+        } else {
+            // Permission has already been granted
+            LoginApiCall().execute("http://triptoe.pearnode.com/api_mobile/api/validate")
         }
     }
 

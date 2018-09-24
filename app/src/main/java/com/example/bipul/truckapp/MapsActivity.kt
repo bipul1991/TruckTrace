@@ -1,5 +1,6 @@
 package com.example.bipul.truckapp
 
+import android.Manifest
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
@@ -16,27 +17,154 @@ import android.R.attr.data
 import android.annotation.SuppressLint
 import android.app.ProgressDialog
 import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Color
+import android.location.Location
+import android.location.LocationManager
+import android.net.Uri
 import android.os.AsyncTask
+import android.support.multidex.MultiDex
+import android.support.v4.app.ActivityCompat
+import android.support.v7.app.AlertDialog
 import android.util.Log
+import android.view.LayoutInflater
 import com.example.bipul.truckapp.model.GoogleMapDTO
+import com.google.android.gms.common.ConnectionResult
+import com.google.android.gms.common.api.GoogleApiClient
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.PolylineOptions
+import com.google.android.gms.tasks.OnSuccessListener
 import com.google.gson.Gson
 import com.squareup.okhttp.OkHttpClient
 import com.squareup.okhttp.Request
-import java.io.BufferedReader
-import java.io.InputStream
-import java.io.InputStreamReader
+import org.json.JSONException
+import org.json.JSONObject
+import java.io.*
 import java.net.HttpURLConnection
+import java.net.MalformedURLException
 import java.net.URL
+import kotlinx.android.synthetic.main.dialog_submit_transport.view.*
 
 
-class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
+class MapsActivity : AppCompatActivity(), OnMapReadyCallback,GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, com.google.android.gms.location.LocationListener {
+
+    var type = ""
+    var tranId=""
+    var intentType=""
+
+
+
 
     private lateinit var mMap: GoogleMap
 
-var type = ""
+    var latitude: Double?=12.45
+    var longitude: Double?=34.2
 
+    var userLatLng : LatLng?=null
+    var trackerLatLng: LatLng?=null
+
+    val TAG = "tagLog"
+    private lateinit var mGoogleApiClient: GoogleApiClient
+    private var mLocationManager: LocationManager? = null
+    lateinit var mLocation: Location
+    private var mLocationRequest: LocationRequest? = null
+    private val listener: com.google.android.gms.location.LocationListener? = null
+    private val UPDATE_INTERVAL = (2 * 1000).toLong()  /* 10 secs */
+    private val FASTEST_INTERVAL: Long = 2000 /* 2 sec */
+
+    lateinit var locationManager: LocationManager
+
+
+
+
+    override fun onConnected(p0: Bundle?) {
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+
+            return;
+        }
+        startLocationUpdates();
+
+        var fusedLocationProviderClient :
+                FusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
+        fusedLocationProviderClient .getLastLocation()
+                .addOnSuccessListener(this, OnSuccessListener<Location> { location ->
+                    // Got last known location. In some rare situations this can be null.
+                    if (location != null) {
+                        // Logic to handle location object
+                        mLocation = location;
+                        /*txt_latitude.setText("" + mLocation.latitude)
+                        txt_longitude.setText("" + mLocation.longitude)*/
+                    }
+                })
+    }
+
+    override fun onConnectionSuspended(p0: Int) {
+
+
+        Log.i(TAG, "Connection Suspended");
+        mGoogleApiClient.connect();
+    }
+
+    override fun onConnectionFailed(connectionResult: ConnectionResult) {
+        //To change body of created functions use File | Settings | File Templates.
+        Log.i(TAG, "Connection failed. Error: " + connectionResult.getErrorCode());
+        Log.i(TAG, "Connection failed. Error2: " + connectionResult.errorMessage);
+    }
+
+    override fun onLocationChanged(location: Location?) {
+        //To change body of created functions use File | Settings | File Templates.
+
+        var msg = "Updated Location: Latitude " + location?.longitude.toString() + location?.longitude;
+        // txt_latitude.setText(""+location.latitude);
+        //   txt_longitude.setText(""+location.longitude);
+
+        latitude = location?.latitude
+        longitude = location?.longitude
+        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+
+        if (type.equals("3", true))
+        {
+                trackerLatLng = LatLng(latitude!!, longitude!!)
+        }
+
+        else
+        {
+          //  userLatLng = LatLng(latitude!!, longitude!!)
+        }
+    }
+
+    protected fun startLocationUpdates() {
+
+        // Create the location request
+        mLocationRequest = LocationRequest.create()
+                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
+                .setInterval(UPDATE_INTERVAL)
+                .setFastestInterval(FASTEST_INTERVAL);
+        // Request location updates
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient,
+                mLocationRequest, this);
+    }
+
+    override fun onStart() {
+        super.onStart();
+        if (mGoogleApiClient != null) {
+            mGoogleApiClient.connect();
+        }
+    }
+
+    override fun onStop() {
+        super.onStop();
+        if (mGoogleApiClient.isConnected()) {
+            mGoogleApiClient.disconnect();
+        }
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_maps)
@@ -44,20 +172,359 @@ var type = ""
 
         val mapFragment = supportFragmentManager
                 .findFragmentById(R.id.map) as SupportMapFragment
-        mapFragment.getMapAsync(this)
+        mapFragment.getMapAsync( this@MapsActivity)
 
-        cmpltLay.setOnClickListener(View.OnClickListener { Toast.makeText(this, "We are working on it" as String, Toast.LENGTH_LONG).show() })
-        cnclLay.setOnClickListener(View.OnClickListener { Toast.makeText(this, "We are working on it" as String, Toast.LENGTH_LONG).show() })
+     //   MultiDex.install(this)
+
+        mGoogleApiClient = GoogleApiClient.Builder( this@MapsActivity)
+                .addConnectionCallbacks( this@MapsActivity)
+                .addOnConnectionFailedListener( this@MapsActivity)
+                .addApi(LocationServices.API)
+                .build()
+
+         mLocationManager = this@MapsActivity.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+
+
+
+        cmpltLay.setOnClickListener(View.OnClickListener
+        { /*UserConfirmedAsync().
+                execute("http://triptoe.pearnode.com/api_mobile/api/submitStatus","id, user_feedback")*/
+            createDialog()})
+
+
         emgncyLay.setOnClickListener(View.OnClickListener { Toast.makeText(this, "We are working on it" as String, Toast.LENGTH_LONG).show() })
 
         val editor = getSharedPreferences("truck", Context.MODE_PRIVATE)
         type = editor.getString("type","type")
 
-        if (!type.equals(type,ignoreCase = true))
+        val intentGet = getIntent();
+        tranId=intentGet.getStringExtra("trsnId")
+      //  intentType=intentGet.getStringExtra("type")
+
+
+
+        if(type.equals("3",true))
         {
-            linearLay.visibility = View.GONE
+            // Trucker
+            cmpltLay.visibility=View.GONE
+
+        }
+        else
+        {
+            emgncyLay.visibility=View.GONE
+        }
+
+    }
+
+    fun createDialog()
+    {
+        val mDialogView = LayoutInflater.from(this).inflate(R.layout.dialog_submit_transport, null)
+        //AlertDialogBuilder
+        val mBuilder = AlertDialog.Builder(this)
+                .setView(mDialogView)
+                .setTitle("Submit Form")
+        //show dialog
+        val  mAlertDialog = mBuilder.show()
+        //login button click of custom layout
+        mDialogView.submitBtn.setOnClickListener {
+            //dismiss dialog
+            mAlertDialog.dismiss()
+            //get text from EditTexts of custom layout
+            val msg = mDialogView.descEdt.text.toString()
+
+            //set the input text in TextView
+         //   mainInfoTv.setText("Name:"+ name +"\nEmail: "+ email +"\nPassword: "+ password)
+        }
+        //cancel button click of custom layout
+        mDialogView.canCeltBtn.setOnClickListener {
+            //dismiss dialog
+            mAlertDialog.dismiss()
         }
     }
+
+    inner class TransportDetailAsync : AsyncTask<String, String, String>() {
+
+
+        internal var pdLoading: ProgressDialog? = null
+        override fun onPreExecute() {
+            super.onPreExecute()
+/*
+
+                     pdLoading = ProgressDialog(this@LogInActivity);
+                       pdLoading?.setMessage("\tVerifying...");
+                     pdLoading?.setCancelable(false);
+                    pdLoading?.show();
+*/
+
+        }
+
+        override fun doInBackground(vararg urls: String): String? {
+
+            var connection: HttpURLConnection? = null
+            var reader: BufferedReader? = null
+
+            try {
+                val url = URL(urls[0])
+                connection = url.openConnection() as HttpURLConnection
+
+                connection.readTimeout = 10000
+                connection.connectTimeout = 15000
+                connection.requestMethod = "POST"
+                connection.doInput = true
+                connection.doOutput = true
+
+                val builder = Uri.Builder()
+
+                        .appendQueryParameter("id", urls[1])
+
+                // .appendQueryParameter("device_id", device_id)
+
+
+                val query = builder.build().query
+                val os = connection.outputStream
+                val writer = BufferedWriter(
+                        OutputStreamWriter(os))
+                writer.write(query)
+                writer.flush()
+                writer.close()
+                os.close()
+                connection.connect()
+
+                val stream = connection.inputStream
+                reader = BufferedReader(InputStreamReader(stream))
+
+                var line : String? = ""
+                val buffer = StringBuffer()
+
+                /* while ((line = reader.readLine()) != null) {
+                     buffer.append(line)
+                 }*/
+
+                do {
+                    line = reader.readLine()
+
+                    if (line == null)
+
+                        break
+
+                    else
+                        buffer.append(line)
+                    //  println(line)
+
+                }
+                // while (true)
+                while (line == null)
+
+                val finaljson = buffer.toString()
+
+                val parentobjt = JSONObject(finaljson)
+
+                //               ShippingAddressModel shippingAddressModel=new ShippingAddressModel();
+                //
+                //               shippingAddressModel.setMsg(parentobjt.getString("msg"));
+                //               shippingAddressModel.setStatus(parentobjt.getBoolean("status"));
+
+                Log.d("jsonLogIn2",""+parentobjt)
+                return finaljson
+
+            } catch (e: MalformedURLException) {
+                e.printStackTrace()
+            } catch (e: IOException) {
+                e.printStackTrace()
+            } catch (e: JSONException) {
+                e.printStackTrace()
+            }
+
+
+            return null
+        }
+
+        override fun onPostExecute(response: String) {
+            super.onPostExecute(response)
+
+            try {
+
+                val parentobjt = JSONObject(response)
+                Log.d("jsonDetails",""+parentobjt)
+
+
+                //Toast.makeText(Login.this,status+result+msg,Toast.LENGTH_LONG).show();
+
+
+                // Trucker
+                var innerObj2  =parentobjt.getString("end_location")   //User
+                var jObjUser = JSONObject(innerObj2)
+
+                userLatLng = LatLng(jObjUser.getString("location_lat")
+                        as Double,jObjUser.getString("location_long") as Double)
+
+
+                if (!type.equals("3", true))
+                {
+                    var innerObj  =parentobjt.getString("start_location")
+                    var jObjTrucker = JSONObject(innerObj)
+                    trackerLatLng = LatLng(jObjTrucker.getString("location_lat")      //Trucker
+                            as Double,jObjTrucker.getString("location_long") as Double)
+                }
+
+                Log.d("latLngChk",""+trackerLatLng+"  "+userLatLng)
+
+                GetDirection( getDirectionsUrl(userLatLng,trackerLatLng)).execute()
+
+
+
+            }
+            catch (e: JSONException) {
+                e.printStackTrace()
+            } catch (ex: Exception) {
+                ex.printStackTrace()
+                Log.d("expst", " Nullpointer exception")
+            }
+
+        }
+    }
+
+    inner class UserConfirmedAsync : AsyncTask<String, String, String>() {
+
+
+        internal var pdLoading: ProgressDialog? = null
+        override fun onPreExecute() {
+            super.onPreExecute()
+/*
+
+                     pdLoading = ProgressDialog(this@LogInActivity);
+                       pdLoading?.setMessage("\tVerifying...");
+                     pdLoading?.setCancelable(false);
+                    pdLoading?.show();
+*/
+
+        }
+
+        override fun doInBackground(vararg urls: String): String? {
+
+            var connection: HttpURLConnection? = null
+            var reader: BufferedReader? = null
+
+            try {
+                val url = URL(urls[0])
+                connection = url.openConnection() as HttpURLConnection
+
+                connection.readTimeout = 10000
+                connection.connectTimeout = 15000
+                connection.requestMethod = "POST"
+                connection.doInput = true
+                connection.doOutput = true
+
+                val builder = Uri.Builder()
+
+                        .appendQueryParameter("id", urls[1])
+
+                // .appendQueryParameter("device_id", device_id)
+
+
+                val query = builder.build().query
+                val os = connection.outputStream
+                val writer = BufferedWriter(
+                        OutputStreamWriter(os))
+                writer.write(query)
+                writer.flush()
+                writer.close()
+                os.close()
+                connection.connect()
+
+                val stream = connection.inputStream
+                reader = BufferedReader(InputStreamReader(stream))
+
+                var line : String? = ""
+                val buffer = StringBuffer()
+
+                /* while ((line = reader.readLine()) != null) {
+                     buffer.append(line)
+                 }*/
+
+                do {
+                    line = reader.readLine()
+
+                    if (line == null)
+
+                        break
+
+                    else
+                        buffer.append(line)
+                    //  println(line)
+
+                }
+                // while (true)
+                while (line == null)
+
+                val finaljson = buffer.toString()
+
+                val parentobjt = JSONObject(finaljson)
+
+                //               ShippingAddressModel shippingAddressModel=new ShippingAddressModel();
+                //
+                //               shippingAddressModel.setMsg(parentobjt.getString("msg"));
+                //               shippingAddressModel.setStatus(parentobjt.getBoolean("status"));
+
+                Log.d("jsonLogIn2",""+parentobjt)
+                return finaljson
+
+            } catch (e: MalformedURLException) {
+                e.printStackTrace()
+            } catch (e: IOException) {
+                e.printStackTrace()
+            } catch (e: JSONException) {
+                e.printStackTrace()
+            }
+
+
+            return null
+        }
+
+        override fun onPostExecute(response: String) {
+            super.onPostExecute(response)
+
+            try {
+
+                val parentobjt = JSONObject(response)
+                Log.d("jsonDetails",""+parentobjt)
+
+
+                //Toast.makeText(Login.this,status+result+msg,Toast.LENGTH_LONG).show();
+
+
+                // Trucker
+                var innerObj2  =parentobjt.getString("end_location")   //User
+                var jObjUser = JSONObject(innerObj2)
+
+                userLatLng = LatLng(jObjUser.getString("location_lat")
+                        as Double,jObjUser.getString("location_long") as Double)
+
+
+                if (!type.equals("3", true))
+                {
+                    var innerObj  =parentobjt.getString("start_location")
+                    var jObjTrucker = JSONObject(innerObj)
+                    trackerLatLng = LatLng(jObjTrucker.getString("location_lat")      //Trucker
+                            as Double,jObjTrucker.getString("location_long") as Double)
+                }
+
+                GetDirection( getDirectionsUrl(userLatLng,trackerLatLng)).execute()
+
+
+
+            }
+            catch (e: JSONException) {
+                e.printStackTrace()
+            } catch (ex: Exception) {
+                ex.printStackTrace()
+                Log.d("expst", " Nullpointer exception")
+            }
+
+        }
+    }
+
+
 
     /**
      * Manipulates the map once available.
@@ -68,13 +535,20 @@ var type = ""
      * it inside the SupportMapFragment. This method will only be triggered once the user has
      * installed Google Play services and returned to the app.
      */
+    @SuppressLint("MissingPermission")
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
 
+        mMap.setMyLocationEnabled(true);
         // Add a marker in Sydney and move the camera
-        val sydney = LatLng(-34.0, 151.0)
+        val sydney = LatLng(22.779200, 88.367870)
+        val sydney2 = LatLng(22.564056, 88.353853)
         mMap.addMarker(MarkerOptions().position(sydney).title("Marker in Sydney"))
         mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney))
+
+     //   GetDirection( getDirectionsUrl(sydney,sydney2)).execute()
+        TransportDetailAsync().execute("http://triptoe.pearnode.com/api_mobile/api/transport_details",tranId)
+
     }
 
 
@@ -103,105 +577,7 @@ var type = ""
         return url;
     }
 
-    /** A method to download json data from url */
 
-    @SuppressLint("LongLogTag")
-   fun downloadUrl( strUrl:String?):String{
-        var data:String? = null;
-       var iStream : InputStream? = null;
-        var urlConnection: HttpURLConnection? = null;
-        try{
-            var url: URL =  URL(strUrl);
-
-            // Creating an http connection to communicate with url
-            urlConnection =  url.openConnection() as HttpURLConnection;
-
-            // Connecting to url
-            urlConnection.connect();
-
-            // Reading data from url
-            iStream = urlConnection.getInputStream();
-
-            var br : BufferedReader =  BufferedReader(InputStreamReader(iStream));
-
-            var sb :StringBuffer  = StringBuffer();
-
-            var line = "";
-           /* while( ( line = br.readLine())  != null){
-                sb.append(line);
-            }*/
-
-            do {
-                line = br.readLine()
-
-                if (line == null)
-
-                    break
-
-                else
-                    sb.append(line)
-                //  println(line)
-
-            }
-            // while (true)
-            while (line == null)
-
-            data = sb.toString();
-
-            br.close();
-
-        }catch(e: Exception ){
-            Log.d("Exception while downloading url", e.toString());
-        }finally{
-            iStream?.close();
-            urlConnection?.disconnect();
-        }
-        return data as String;
-
-
-    }
-
-   /*inner class DownloadTask : AsyncTask<String, Void, String>() {
-
-        internal var pdLoading2: ProgressDialog? = null
-        override fun onPreExecute() {
-            super.onPreExecute()
-            *//* pdLoading2? = ProgressDialog(this@MapsActivity)
-             pdLoading2?.setMessage("\tVerifying...")
-             pdLoading2?.setCancelable(false)
-             pdLoading2?.show()*//*
-        }
-
-        // Downloading data in non-ui thread
-        override fun doInBackground(vararg url: String): String {
-
-            // For storing data from web service
-            var data = ""
-
-            try {
-                // Fetching the data from web service
-                data = downloadUrl(url[0])
-            } catch (e: Exception) {
-                Log.d("Background Task", e.toString())
-            }
-
-            return data
-        }
-
-        // Executes in UI thread, after the execution of
-        // doInBackground()
-        override fun onPostExecute(result: String) {
-            super.onPostExecute(result)
-
-            val parserTask = ParserTask()
-
-            // Invokes the thread for parsing the JSON data
-            parserTask.execute(result)
-          //  pdLoading2?.dismiss()
-        }
-
-
-    }*/
 
     private inner class GetDirection(val url : String) : AsyncTask<Void,Void,List<List<LatLng>>>(){
         override fun doInBackground(vararg params: Void?): List<List<LatLng>> {
@@ -243,7 +619,7 @@ var type = ""
         }
     }
 
-    public fun decodePolyline(encoded: String): List<LatLng> {
+   fun decodePolyline(encoded: String): List<LatLng> {
 
         val poly = ArrayList<LatLng>()
         var index = 0

@@ -2,12 +2,10 @@ package com.example.bipul.truckapp
 
 import android.app.ProgressDialog
 import android.content.Context
-import android.content.Intent
 import android.net.Uri
 import android.os.AsyncTask
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.LayoutInflater
@@ -25,22 +23,22 @@ import java.net.HttpURLConnection
 import java.net.MalformedURLException
 import java.net.URL
 
-class CompletedActivity : AppCompatActivity() {
+class Pending : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_completed)
-        recyclerView.layoutManager = LinearLayoutManager(this)
+
 
         val editor = getSharedPreferences("truck", Context.MODE_PRIVATE)
 
         var  userType = editor.getString("type", "username")
         var  userId = editor.getString("userId", "username")
 
-        CompleteAsync().execute("http://triptoe.pearnode.com/api_mobile/api/transport_completed",userId,userType)
+        PendingAsync().execute("http://triptoe.pearnode.com/api_mobile/api/transport_pending",userId,userType)
     }
 
-    inner class CompleteAsync : AsyncTask<String, String, String>() {
+    inner class PendingAsync : AsyncTask<String, String, String>() {
 
 
         internal var pdLoading: ProgressDialog? = null
@@ -163,7 +161,7 @@ class CompletedActivity : AppCompatActivity() {
 
                     modelList.add(UserModel(userName,userId,tnsPtName,address,"123lat","lung34",transporter_id))
                 }
-                var adapter = UserAdapter(modelList,this@CompletedActivity)
+                var adapter = UserAdapter(modelList,this@Pending)
                 recyclerView.adapter = adapter
 
                 //  recyclerView.adapter = UserAdapter(modelList!!, this@Active)
@@ -199,11 +197,11 @@ class CompletedActivity : AppCompatActivity() {
             holder?.userIdTxt?.text= items.get(position).userId
             holder?.userAdrTxt.text= items.get(position).userAdrs
 
-        /*    holder.itmLay.setOnClickListener(View.OnClickListener {
-                val intent = Intent(context, MapsActivity::class.java)
-                intent.putExtra("trsnId",items.get(position).transPortId)
-                context.startActivity(intent)
-            })*/
+            /*    holder.itmLay.setOnClickListener(View.OnClickListener {
+                    val intent = Intent(context, MapsActivity::class.java)
+                    intent.putExtra("trsnId",items.get(position).transPortId)
+                    context.startActivity(intent)
+                })*/
         }
     }
 

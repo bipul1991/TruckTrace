@@ -8,6 +8,7 @@
          location permissions for the 'MyLocation' functionality. 
     -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.INTERNET" />
 
     <!-- To auto-complete the email text field in the login form with the user's emails -->
@@ -51,11 +52,14 @@
         <activity
             android:name=".LoginActivity3"
             android:label="@string/title_activity_login3" />
-        <activity android:name=".HomeActivity"></activity>
+        <activity android:name=".HomeActivity" />
         <activity
             android:name=".MapsActivity2555555"
             android:label="@string/title_activity_maps2555555" />
-        <activity android:name=".CompletedActivity"></activity>
+        <activity android:name=".CompletedActivity" />
+        <activity android:name=".Active" />
+        <activity android:name=".Pending" />
+        <activity android:name=".Cancelde"></activity>
     </application>
 
 </manifest>

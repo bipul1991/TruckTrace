@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "875617394337",
+    "firebase_url": "https://transport-d6cd1.firebaseio.com",
+    "project_id": "transport-d6cd1",
+    "storage_bucket": "transport-d6cd1.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:875617394337:android:c5e5922d7860656f",
+        "android_client_info": {
+          "package_name": "com.example.bipul.truckapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "875617394337-4c8qi3gm6opaerpvm5vb641cl9ldcgou.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBIPIbGTBY6Z1GzWaGadkLIu5w0Z8AXpeM"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

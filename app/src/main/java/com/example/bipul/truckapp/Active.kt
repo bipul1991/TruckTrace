@@ -7,6 +7,7 @@ import android.net.Uri
 import android.os.AsyncTask
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.support.v4.content.ContextCompat.startActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.util.Log
@@ -15,6 +16,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
 import com.example.bipul.truckapp.model.UserModel
 import kotlinx.android.synthetic.main.activity_completed.*
 import org.json.JSONArray
@@ -25,7 +27,7 @@ import java.net.HttpURLConnection
 import java.net.MalformedURLException
 import java.net.URL
 
-class CompletedActivity : AppCompatActivity() {
+class Active : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,13 +36,13 @@ class CompletedActivity : AppCompatActivity() {
 
         val editor = getSharedPreferences("truck", Context.MODE_PRIVATE)
 
-        var  userType = editor.getString("type", "username")
-        var  userId = editor.getString("userId", "username")
+      var  userType = editor.getString("type", "username")
+      var  userId = editor.getString("userId", "username")
 
-        CompleteAsync().execute("http://triptoe.pearnode.com/api_mobile/api/transport_completed",userId,userType)
+        ActiveAsync().execute("http://triptoe.pearnode.com/api_mobile/api/transport_active",userId,userType)
     }
 
-    inner class CompleteAsync : AsyncTask<String, String, String>() {
+    inner class ActiveAsync : AsyncTask<String, String, String>() {
 
 
         internal var pdLoading: ProgressDialog? = null
@@ -112,7 +114,7 @@ class CompletedActivity : AppCompatActivity() {
 
                 val finaljson = buffer.toString()
 
-                //  val parentobjt = JSONObject(finaljson)
+              //  val parentobjt = JSONObject(finaljson)
 
                 //               ShippingAddressModel shippingAddressModel=new ShippingAddressModel();
                 //
@@ -146,12 +148,12 @@ class CompletedActivity : AppCompatActivity() {
 
                 val parentArray = JSONArray(response)
 
-                // var arraylist: ArrayList<UserModel>?=null
+               // var arraylist: ArrayList<UserModel>?=null
                 val modelList = ArrayList<UserModel>()
 
                 for(x in 0..parentArray.length()-1)
                 {
-                    var jsonObj : JSONObject = parentArray.getJSONObject(x);
+                    var jsonObj :JSONObject = parentArray.getJSONObject(x);
                     var userName=jsonObj.getString("user_name")
                     var userId=jsonObj.getString("user_id")
                     var tnsPtName=jsonObj.getString("transporter_name")
@@ -163,10 +165,10 @@ class CompletedActivity : AppCompatActivity() {
 
                     modelList.add(UserModel(userName,userId,tnsPtName,address,"123lat","lung34",transporter_id))
                 }
-                var adapter = UserAdapter(modelList,this@CompletedActivity)
+                var adapter = UserAdapter(modelList,this@Active)
                 recyclerView.adapter = adapter
 
-                //  recyclerView.adapter = UserAdapter(modelList!!, this@Active)
+              //  recyclerView.adapter = UserAdapter(modelList!!, this@Active)
 
 
                 //Toast.makeText(Login.this,status+result+msg,Toast.LENGTH_LONG).show();
@@ -181,7 +183,7 @@ class CompletedActivity : AppCompatActivity() {
         }
     }
 
-    class UserAdapter(val items : ArrayList<UserModel>, val context: Context) : RecyclerView.Adapter<ViewHolder>() {
+  class UserAdapter(val items : ArrayList<UserModel>, val context: Context) : RecyclerView.Adapter<ViewHolder>() {
 
         // Gets the number of animals in the list
         override fun getItemCount(): Int {
@@ -199,11 +201,11 @@ class CompletedActivity : AppCompatActivity() {
             holder?.userIdTxt?.text= items.get(position).userId
             holder?.userAdrTxt.text= items.get(position).userAdrs
 
-        /*    holder.itmLay.setOnClickListener(View.OnClickListener {
+            holder.itmLay.setOnClickListener(View.OnClickListener {
                 val intent = Intent(context, MapsActivity::class.java)
                 intent.putExtra("trsnId",items.get(position).transPortId)
                 context.startActivity(intent)
-            })*/
+                })
         }
     }
 
